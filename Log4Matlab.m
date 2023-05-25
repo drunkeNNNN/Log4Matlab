@@ -11,6 +11,7 @@ classdef Log4Matlab < handle
     end
 
     properties(Access = private)
+        filters cell = cell(0);
         acceptFilterArray=Log4Matlab.disabledFilter();
         denyFilterArray=Log4Matlab.disabledFilter();
 
@@ -67,6 +68,18 @@ classdef Log4Matlab < handle
 
     %% Public Methods Section %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     methods(Access=public)
+        function clearFilters(obj)
+            obj.filters=cell(0);
+        end
+
+        function addFilter(obj,filter)
+            arguments
+                obj Log4Matlab;
+                filter Filters.Filter;
+            end
+            obj.filters{end+1,1}=filter;
+        end
+
         function clearAppenders(obj)
             obj.appenders=cell(0);
         end

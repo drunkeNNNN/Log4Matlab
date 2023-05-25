@@ -4,7 +4,7 @@ clc;
 l=Log4Matlab.getInstance();
 l.clearAppenders();
 l.addAppender(Appenders.CommandWindow().setLogLevel(Log4Matlab.INFO));
-l.addAppender(Appenders.TextFile().setLogLevel(Log4Matlab.INFO));
+% l.addAppender(Appenders.TextFile().setLogLevel(Log4Matlab.INFO));
 % l.addAppender(Appenders.TextFile().setLogLevel(Log4Matlab.INFO).setOutputFilePath('NoPrefix.log'));
 % l.addAppender(Appenders.TextFile().setLogLevel(Log4Matlab.INFO).setOutputFilePath('Prefix.log',true));
 ta=Appenders.Table().setLogLevel(Log4Matlab.ALL);
@@ -12,6 +12,9 @@ l.addAppender(ta);
 
 % l.setAcceptFilter('class');
 l.setAcceptFilter('');
+l.addFilter(Filters.Regex().setRegex('cell')...
+                           .onMatch(Filters.Filter.DENY)...
+                           .onMismatch(Filters.Filter.ACCEPT));
 
 l.info('This is an info about numbers: ',[8,9]);
 aFunctionLogging(l);

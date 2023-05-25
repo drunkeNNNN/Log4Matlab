@@ -6,9 +6,40 @@ classdef Filter < handle
     end
 
     properties(Access=private)
+        onMatchAction;
+        onMismatchAction;
     end
-    
-    methods(Abstract,Access=public)
-        filterResult=applyFilter(obj,message);
+
+    methods(Access=public)
+        function result=applyFilter(obj,message)
+            doesMatch=obj.matches(message);
+            if doesMatch
+                result=obj.onMatchAction();
+            else
+                result=obj.onMismatchAction();
+            end
+        end
+    end
+
+    methods(Abstract,Access=protected)
+        filterResult=matches(obj,message);
+    end
+
+    methods(Access=public)
+        function obj=onMatch(obj,action)
+            arguments
+                obj Filters.Regex;
+                action categorical;
+            end
+            obj.onMatchAction=action;
+        end
+
+        function obj=onMismatch(obj,action)
+            arguments
+                obj Filters.Regex;
+                action categorical;
+            end
+            obj.onMismatchAction=action;
+        end
     end
 end
