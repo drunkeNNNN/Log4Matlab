@@ -1,4 +1,4 @@
-clear;
+clear all;
 clc;
 
 l=Log4Matlab.getInstance();
@@ -12,9 +12,11 @@ l.addAppender(ta);
 
 % l.setAcceptFilter('class');
 l.setAcceptFilter('');
-l.addFilter(Filters.Regex().setRegex('cell')...
-                           .onMatch(Filters.Filter.DENY)...
-                           .onMismatch(Filters.Filter.ACCEPT));
+l.addFilter(Filters.Regex().setRegex({'Table'})...
+                           .onMatch(Filters.Filter.DENY));
+l.addFilter(Filters.Regex().setRegex({'Cell'})...
+                           .onMatch(Filters.Filter.ACCEPT));
+
 
 l.info('This is an info about numbers: ',[8,9]);
 aFunctionLogging(l);
@@ -36,7 +38,7 @@ l.info('cell array print: ',itemNames);
 itemValues=[10;20;30];
 
 testTable=table(itemNames,itemValues);
-l.warn('Table data out of spec: ',testTable);
+l.debug('Table data out of spec: ',testTable);
 
 parfor i=1:3
     l.info('thread : Logging from a parfor loop');

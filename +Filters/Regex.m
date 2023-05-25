@@ -13,15 +13,15 @@ classdef Regex < Filters.Filter
     end
     methods(Access=protected)
         function doesMatch=matches(obj,message)
-            if isempty(obj.acceptFilterArray)
+            if isempty(obj.regexes)
                 doesMatch=true;
                 return;
             end
-            for j=1:length(obj.acceptFilterArray)
-                if isempty(obj.acceptFilterArray{j})
+            for j=1:length(obj.regexes)
+                if isempty(obj.regexes{j})
                     continue;
                 end
-                if ~isempty(matches(message,obj.regexes))
+                if ~isempty(regexp(message,obj.regexes{j},'match'))
                     doesMatch=true;
                     return;
                 end

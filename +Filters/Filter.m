@@ -1,22 +1,22 @@
 classdef Filter < handle
     properties(Constant,Access=public)
-        ACCEPT=categorical({'ACCEPT'});
-        DENY=categorical({'DENY'});
-        NEUTRAL=categorical({'NEUTRAL'});
+        ACCEPT=1;
+        DENY=0;
+        NEUTRAL=-1;
     end
 
     properties(Access=private)
-        onMatchAction;
-        onMismatchAction;
+        onMatchAction=Filters.Filter.NEUTRAL;
+        onMismatchAction=Filters.Filter.NEUTRAL;
     end
 
     methods(Access=public)
         function result=applyFilter(obj,message)
             doesMatch=obj.matches(message);
             if doesMatch
-                result=obj.onMatchAction();
+                result=obj.onMatchAction;
             else
-                result=obj.onMismatchAction();
+                result=obj.onMismatchAction;
             end
         end
     end
@@ -29,7 +29,7 @@ classdef Filter < handle
         function obj=onMatch(obj,action)
             arguments
                 obj Filters.Regex;
-                action categorical;
+                action double;
             end
             obj.onMatchAction=action;
         end
@@ -37,7 +37,7 @@ classdef Filter < handle
         function obj=onMismatch(obj,action)
             arguments
                 obj Filters.Regex;
-                action categorical;
+                action double;
             end
             obj.onMismatchAction=action;
         end

@@ -146,9 +146,9 @@ classdef Log4Matlab < handle
 
         function writeLog(obj,messageLogLevel,varargin)
             % Set up our level string
-            if all(cellfun(@(appender)(appender.getLogLevel()<messageLogLevel),obj.appenders,'UniformOutput',true),"all")
-                return;
-            end
+%             if all(cellfun(@(appender)(appender.getLogLevel()<messageLogLevel),obj.appenders,'UniformOutput',true),"all")
+%                 return;
+%             end
             
             stackTraceInformation=dbstack("-completenames");
             try
@@ -159,17 +159,16 @@ classdef Log4Matlab < handle
             [messageLines,errorLinks]=parseVararginToMessages(obj,varargin{:});
 
             for i=1:size(messageLines,1)
-                if ~isempty(strtrim(messageLines{i}))
-                    if obj.messageNotFilteredOut(messageLogLevel,[scriptName,messageLines{i,1}])
-                        sourceLink=obj.getStackTraceFileLink([],[]);
-                        levelStr=Log4Matlab.levelToString(messageLogLevel);
-                        for k=1:size(obj.appenders,1)
-                            if obj.appenders{k,1}.getLogLevel>=messageLogLevel
-                                obj.appenders{k,1}.appendToLog(levelStr,scriptName,sourceLink,messageLines{i,1},errorLinks{i,1})
-                            end
-                        end
+                sourceLink=obj.getStackTraceFileLink([],[]);
+                levelStr=Log4Matlab.levelToString(messageLogLevel);
+                filterResultActions=cellfun(@(filter)(filter.applyFilter([stackTraceInformation(3,1).name,messageLines{i,1}])),obj.filters,'UniformOutput',true);
+                isFilterAccepted=obj.isAccepted(filterResultActions);
+                isFilterDenied=obj.isDenied(filterResultActions);
+                for k=1:size(obj.appenders,1)
+                    if obj.messageDoesPrint(messageLogLevel,obj.appenders{k,1}.getLogLevel(),isFilterAccepted,isFilterDenied,messageLines{i,1})
+                        obj.appenders{k,1}.appendToLog(levelStr,scriptName,sourceLink,messageLines{i,1},errorLinks{i,1})
                     end
-                 end
+                end
             end
         end
 
@@ -242,39 +241,52 @@ classdef Log4Matlab < handle
             end
         end
 
-        function doPrint=messageNotFilteredOut(obj,level,string)
-            % always print fatal, warning and error
-            doPrint= level>=obj.WARN || (obj.isAccepted(string) && obj.isNotExcluded(string));
+        function doPrint=messageDoesPrint(obj,messageLogLevel,appenderLogLevel,isFilterAccepted,isFilterDenied,message)
+            % filter only below warn
+            if isempty(message)
+                doPrint=false;
+            elseif isFilterAccepted
+                doPrint=true;
+            elseif isFilterDenied
+                doPrint= false;
+            elseif messageLogLevel<=appenderLogLevel
+                doPrint= true;
+            else
+                doPrint=false;
+            end
         end
 
-        function notDenied=isNotExcluded(obj, string)
-            if isempty(obj.denyFilterArray)
-                notDenied=true;
-                return;
-            end
-            for j=1:length(obj.denyFilterArray)
-                if isempty(obj.denyFilterArray{j}) || contains(string,obj.denyFilterArray{j})
-                    notDenied=false;
-                    return
-                end
-            end
-            notDenied=true;
-            return;
+        function deny=isDenied(~, resultActions)
+            deny= any(resultActions==Filters.Filter.DENY);
+
+%             if isempty(obj.denyFilterArray)
+%                 notDenied=true;
+%                 return;
+%             end
+%             for j=1:length(obj.denyFilterArray)
+%                 if isempty(obj.denyFilterArray{j}) || contains(string,obj.denyFilterArray{j})
+%                     notDenied=false;
+%                     return
+%                 end
+%             end
+%             notDenied=true;
+%             return;
         end
 
-        function accepted=isAccepted(obj, string)
-            if isempty(obj.acceptFilterArray)
-                accepted=true;
-                return;
-            end
-            for j=1:length(obj.acceptFilterArray)
-                if isempty(obj.acceptFilterArray{j}) || contains(string,obj.acceptFilterArray{j})
-                    accepted=true;
-                    return;
-                end
-            end
-            accepted=false;
-            return;
+        function accepted=isAccepted(~, resultActions)
+            accepted= any(resultActions==Filters.Filter.ACCEPT);
+%             if isempty(obj.acceptFilterArray)
+%                 accepted=true;
+%                 return;
+%             end
+%             for j=1:length(obj.acceptFilterArray)
+%                 if isempty(obj.acceptFilterArray{j}) || contains(resultActions,obj.acceptFilterArray{j})
+%                     accepted=true;
+%                     return;
+%                 end
+%             end
+%             accepted=false;
+%             return;
         end
     end
 end
