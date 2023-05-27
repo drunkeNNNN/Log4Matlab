@@ -1,7 +1,7 @@
 %% CommandWindow Appender
 % Supports printing links to the origin of the message. When deployed, no
 % links are printed.
-classdef CommandWindow < Log4Matlab.Appenders.Appender
+classdef CommandWindow < Log4M.Appenders.Appender
     methods(Access=public)
         % Function called by the logger
         function appendToLog(obj,levelStr,sourceFilename,sourceLink,message,errorLineLink)

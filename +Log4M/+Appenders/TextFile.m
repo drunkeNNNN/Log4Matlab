@@ -1,26 +1,26 @@
-classdef TextFile<Log4Matlab.Appenders.Appender
+classdef TextFile<Log4M.Appenders.Appender
     properties(Access=private)
         outputFilePath char;
     end
 
     methods(Access=public)
-        function obj=setOutputFilePath(obj, outputFilePath,enableDatePrefix)
+        function obj=setOutputFilePath(obj, outputFilePath,createDatePostfix)
             arguments
-                obj Log4Matlab.Appenders.TextFile;
+                obj Log4M.Appenders.TextFile;
                 outputFilePath char;
                 % Whether or not the present date is added to the output filename.
-                enableDatePrefix=false;
+                createDatePostfix=false;
             end
-            if enableDatePrefix
-                datePrefix=[char(datetime('now','Format','yyyyMMdd_HHmmSS')),'_'];
+            if createDatePostfix
+                datePostfix=['_',char(datetime('now','Format','yyyyMMdd_HHmmSS'))];
             else
-                datePrefix='';
+                datePostfix='';
             end
             [folder,file,ext]=fileparts(outputFilePath);
             if isempty(folder)
                 folder=pwd();
             end
-            obj.outputFilePath=[folder,filesep,datePrefix,file,ext];
+            obj.outputFilePath=[folder,filesep,file,datePostfix,ext];
         end
 
         function newFile(obj,outputFilePath,enableDatePrefix)

@@ -3,19 +3,18 @@
 %%%%%%%%%%%%%%%%%%%%%%%%
 % The following commands should be called once per program execution.
 % Clear all logger instances (kept in persistent memory, not cleared with 'clear')
-clear all;
+clear;
 clc;
 
 % Import Library for convenience
-import Log4Matlab.*;
+import Log4M.*;
 
 %% Setup Logger instance
 % Acquire the default logger instance. Further Logger instances can be
 % created by passing a char identifier to getInstance
 logger=Logger.getInstance();
 
-% Methods to clear the appenders and filters (here for demonstration purpose; 
-% done automatically when instance is created)
+% Methods to clear the appenders and filters. Alternative: clear all;
 logger.clearAppenders();
 logger.clearFilters();
 
@@ -55,7 +54,7 @@ logger.setFileLinkFormat(FileLinkFormat.CLASS_AND_METHOD);
 
 % Configure the logger's log level. For details on log levels and message
 % filtering, see Logger.m and LogLevel.m
-% Set to LogLevel.OFF to disable all logging.
+% Set to LogLevel.OFF to disable all logging.2
 logger.setLogLevel(LogLevel.TRACE);
 
 % Add a regex filter to the logger: Always accept messages containing
@@ -89,22 +88,25 @@ memoryAppender=Appenders.Memory().setLogLevel(LogLevel.ERROR);
 % Memory appender configured to exclusively print messages which match all
 % regexes in the cell array.
 memoryAppender.addFilter(Filters.Regex().setRegex({'table','item B'},Filters.Regex.MODE_ALL)...
-                                       .onMatch(FilterAction.ACCEPT)...
-                                       .onMismatch(FilterAction.DENY));
+                                        .onMatch(FilterAction.ACCEPT)...
+                                        .onMismatch(FilterAction.DENY));
 logger.addAppender(memoryAppender);
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %% Logging demonstration
 %%%%%%%%%%%%%%%%%%%%%%%%
 %% Simple messages
-logger.info('Hello Log4Matlab.');
+logger.info('Hello Log4M.');
 logger.info('This is a split message containing chars,'," strings, and the number pi ",pi,'.');
 logger.info('You can also log datetime ',datetime('now'),' and duration objects ',datetime("now")-datetime('yesterday'),'.');
 % Logging a message which is not printed to the console due to its log level
 logger.trace('This message does not print and is filtered out. Change log level above to TRACE to print.');
 % A message with the same log level prints to the console due to the accept filter
 % configured above (overriding the log level)
-logger.trace('PRINT THIS <- this message prints.')
+logger.trace('PRINT THIS <- two function handles horizontally: ',{@Log4M.Logger,@Log4M.Filters.Filter})
+logger.trace('PRINT THIS <- two function handles vertically: ',{@Log4M.Logger;@Log4M.Filters.Filter})
+logger.info('A random object: ',Log4M.LogLevel());
+logger.info('An object with configured char fun: ',LogExampleClass());
 
 %% Logging in different code areas.
 % The logger can either be passed or the
@@ -137,15 +139,22 @@ logger.trace('Cell array print: ',itemNames);
 
 % Logging a table
 itemDates={datetime('yesterday');datetime('today');datetime('tomorrow')};
+itemCats=categorical(["CAT_A";"CAT_B";"CAT_B"]);
 itemValues=[10;20;30];
-testTableSmall=table(itemNames,itemDates,itemValues);
+testTableSmall=table(itemNames,itemDates,itemCats,itemValues);
 logger.debug('Small table data: ',testTableSmall);
+
 largeItemValues=itemValues+100;
-testTableLarge=table(itemNames,itemDates,largeItemValues);
+testTableLarge=table(itemNames,itemDates,itemCats,largeItemValues);
 logger.info('Large table data: ',testTableLarge);
 
-% Retrieve the filtered messages in the table appender, display the output
+testTimetable=timetable(vertcat(itemDates{:}),itemNames,itemCats,largeItemValues./1E3);
+logger.warn('Logging timetable data: ',testTimetable);
+
+% Retrieve the filtered messages in the memory appender as a table
 logTable=memoryAppender.getTable()
+% display and filter the data in post analysis
+filteredLogTable=logTable(strcmp(logTable.LevelStr,'WARN'),:)
 
 %% Performance
 N=50;
@@ -166,7 +175,7 @@ LogExampleClass().aClassMethodCrashingFatally();
 
 %% Helpers
 function aFunctionWithAnError()
-    error('Log4Matlab:example:identifier','This is a test error message.');
+    error('Log4M:example:identifier','This is a test error message.');
 end
 
 function aScriptFunctionLogging(logger)

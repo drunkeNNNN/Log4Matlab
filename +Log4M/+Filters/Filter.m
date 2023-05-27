@@ -1,7 +1,7 @@
 classdef Filter < handle
     properties(Access=private)
-        onMatchAction=Log4Matlab.FilterAction.NEUTRAL;
-        onMismatchAction=Log4Matlab.FilterAction.NEUTRAL;
+        onMatchAction=Log4M.FilterAction.NEUTRAL;
+        onMismatchAction=Log4M.FilterAction.NEUTRAL;
     end
 
     methods(Access=public)
@@ -22,7 +22,7 @@ classdef Filter < handle
     methods(Access=public)
         function obj=onMatch(obj,action)
             arguments
-                obj Log4Matlab.Filters.Filter;
+                obj Log4M.Filters.Filter;
                 action double;
             end
             obj.onMatchAction=action;
@@ -30,7 +30,7 @@ classdef Filter < handle
 
         function obj=onMismatch(obj,action)
             arguments
-                obj Log4Matlab.Filters.Filter;
+                obj Log4M.Filters.Filter;
                 action double;
             end
             obj.onMismatchAction=action;

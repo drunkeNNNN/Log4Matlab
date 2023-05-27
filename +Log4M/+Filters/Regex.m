@@ -1,4 +1,4 @@
-classdef Regex < Log4Matlab.Filters.Filter
+classdef Regex < Log4M.Filters.Filter
     properties(Constant,Access=public)
         MODE_ALL=0;
         MODE_ANY=1;
