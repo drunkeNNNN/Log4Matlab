@@ -1,3 +1,5 @@
+% Abstract class implemented by Logger and Appender, which holds filters
+% and log levels
 classdef LogMessageFilterComponent < handle
     properties(Access=private)
         filters cell = cell(0);
@@ -24,7 +26,9 @@ classdef LogMessageFilterComponent < handle
             end
             obj.filters{end+1,1}=filter;
         end
+    end
 
+    methods(Access=protected)
         function [isFilterAccepted,isFilterDenied]=getFilterResult(obj,message)
             filterResultActions=cellfun(@(filter)(filter.applyFilter(message)),obj.filters,'UniformOutput',true);
             isFilterAccepted=any(filterResultActions==Log4Matlab.FilterAction.ACCEPT);

@@ -1,5 +1,6 @@
 classdef Appender < Log4Matlab.LogMessageFilterComponent
     properties(Access=protected)
+        % Appender implementation determines, what this does
         verboseModeEnabled (1,1) logical = true;
     end
 

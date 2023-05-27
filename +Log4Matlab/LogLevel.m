@@ -1,8 +1,8 @@
+% When the message log level is lower or equal than the appender's
+% logLevel, the appender prints the message (Can be modified by
+% filters, see FilterAction)
 classdef LogLevel
     properties (Constant,Access=public)
-        % When the message log level is lower or equal than the appender's
-        % logLevel, the appender prints the message (Can be modified by
-        % filters, see FilterAction)
         OFF = 0;
         FATAL = 1;
         ERROR = 2;

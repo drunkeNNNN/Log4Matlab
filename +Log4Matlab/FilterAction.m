@@ -1,3 +1,4 @@
+% Global definition of the actions taken when a message filter matches
 classdef FilterAction
     properties(Constant,Access=public)
         % If the appender's logLevel is not LogLevel.OFF, always print on match/mismatch 

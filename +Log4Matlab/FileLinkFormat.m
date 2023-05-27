@@ -1,3 +1,4 @@
+% Global definition of the Logger setting, which determines the file link format.
 classdef FileLinkFormat
     properties(Constant,Access=public)
         OFF=0;

@@ -29,6 +29,8 @@
 % 6. Message LogLevel <= Appender.logLevel &&
 %    Message LogLevel <= Logger.logLevel -> accept in specific appender
 % 7. -> deny
+%
+% For details, see the example folder
 classdef Logger < Log4Matlab.LogMessageFilterComponent
     properties(Access = private)
         appenders cell = cell(0);
@@ -87,10 +89,12 @@ classdef Logger < Log4Matlab.LogMessageFilterComponent
 
     %% Public Methods Section %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     methods(Access=public)
+        % Removes all added appenders
         function clearAppenders(obj)
             obj.appenders=cell(0);
         end
 
+        % Adds an appender to the logger
         function addAppender(obj,appender)
             arguments
                 obj Log4Matlab.Logger;
@@ -99,10 +103,13 @@ classdef Logger < Log4Matlab.LogMessageFilterComponent
             obj.appenders{end+1,1}=appender;
         end
 
+        % Returns all appenders. Can be used e.g. to filter log messages
+        % during runtime using the TableAppender
         function appenders=getAppenders(obj)
             appenders=obj.appenders;
         end
 
+        % Sets format of file links. See Log4Matlab.FileLinkFormat
         function setFileLinkFormat(obj,fileLinkFormat)
             arguments
                 obj Log4Matlab.Logger;
@@ -111,6 +118,7 @@ classdef Logger < Log4Matlab.LogMessageFilterComponent
             obj.fileLinkFormat=fileLinkFormat;
         end
 
+        % Sets the format of numeric output. See help of num2str(...) for details.
         function setNumericFormat(obj,formatSpec)
             arguments
                 obj Log4Matlab.Logger
@@ -119,7 +127,8 @@ classdef Logger < Log4Matlab.LogMessageFilterComponent
             end
             obj.numericFormatSpec=formatSpec;
         end
-        
+
+        % Sets the format of datetime output. See help of char(...) for details.
         function setDatetimeFormat(obj,formatSpec)
             % does not affect log time stamps for performance reasons
             arguments
@@ -130,6 +139,8 @@ classdef Logger < Log4Matlab.LogMessageFilterComponent
             obj.datetimeFormatSpec=formatSpec;
         end
 
+        % Sets the format for duration output. See help of char(...) for
+        % details.
         function setDurationFormat(obj,formatSpec)
             arguments
                 obj Log4Matlab.Logger;
@@ -140,6 +151,7 @@ classdef Logger < Log4Matlab.LogMessageFilterComponent
         end
 
         %% Logging interface %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Use these methods for logging.
         function all(obj, varargin)
             obj.writeLog(Log4Matlab.LogLevel.ALL,varargin{:});
         end

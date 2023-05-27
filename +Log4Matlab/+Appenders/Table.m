@@ -6,11 +6,13 @@ classdef Table < Log4Matlab.Appenders.Appender
     end
 
     methods(Access=public)
+        % Clears the data in memory
         function resetData(obj)
             % Use cell array for performance
             obj.data=cell(0,6);
         end
 
+        % Returns the saved data as a table
         function tab=getTable(obj)
             if isempty(obj.data)
                 obj.resetData();
@@ -18,6 +20,7 @@ classdef Table < Log4Matlab.Appenders.Appender
             tab=cell2table(obj.data, 'VariableNames', {'Date','LevelStr', 'SourceFilename','SourceLink','Message', 'ErrorLineLink'});
         end
 
+        % Function called by the logger
         function appendToLog(obj,levelStr,sourceFilename,sourceLink,message,errorLineLink)
             if isempty(obj.data)
                 obj.resetData()

@@ -5,12 +5,10 @@ classdef TextFile<Log4Matlab.Appenders.Appender
 
     methods(Access=public)
         function obj=setOutputFilePath(obj, outputFilePath,enableDatePrefix)
-%             arguments
-%                 obj TextFile;
-%                 outputFilePath char;
-%                 enableDatePrefix (1,1) logical=false;
-%             end
-            if nargin<3
+            arguments
+                obj Log4Matlab.Appenders.TextFile;
+                outputFilePath char;
+                % Whether or not the present date is added to the output filename.
                 enableDatePrefix=false;
             end
             if enableDatePrefix
@@ -25,10 +23,12 @@ classdef TextFile<Log4Matlab.Appenders.Appender
             obj.outputFilePath=[folder,filesep,datePrefix,file,ext];
         end
 
-        function newFile(obj)
-            obj.setOutputFilePath('Matlab.log',true);
+        function newFile(obj,outputFilePath,enableDatePrefix)
+            % wrapper
+            obj.setOutputFilePath(outputFilePath,enableDatePrefix);
         end
 
+        % Function called by the Logger
         function appendToLog(obj,levelStr,sourceFilename,sourceLink,message,errorLineLink)
             if isempty(obj.outputFilePath)
                 obj.newFile();

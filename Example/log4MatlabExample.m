@@ -26,7 +26,7 @@ logger.setNumericFormat('%3.3f\t');
 % Configure the format of links to files in the output (CommandWindow and Table appenders)
 %logger.setFileLinkFormat(FileLinkFormat.OFF);
 % logger.setFileLinkFormat(FileLinkFormat.FILENAME);
-% logger.setFileLinkFormat(FileLinkFormat.CLASS_AND_METHOD);
+logger.setFileLinkFormat(FileLinkFormat.CLASS_AND_METHOD);
 % logger.setFileLinkFormat(FileLinkFormat.FULL);
 
 %% Message filters and LogLevel
@@ -98,7 +98,7 @@ logger.addAppender(tableAppender);
 %%%%%%%%%%%%%%%%%%%%%%%%
 %% Simple messages
 logger.info('Hello Log4Matlab.');
-logger.info('This is a split message containing chars,'," strings, the number pi ",pi,'.');
+logger.info('This is a split message containing chars,'," strings, and the number pi ",pi,'.');
 logger.info('You can also log datetime ',datetime('now'),' and duration objects ',datetime("now")-datetime('yesterday'),'.');
 % Logging a message which is not printed to the console due to its log level
 logger.trace('This message does not print and is filtered out. Change log level above to TRACE to print.');
@@ -153,13 +153,13 @@ t=tic;
 for i=1:N
     logger.trace('Logging trace level performance');
 end
-logger.info([num2str(toc(t)/N),'s taken per dismissed log.']);
+logger.info([num2str(toc(t)/N),'s taken per trace level log.']);
 
 t=tic;
 for i=1:N
     logger.warn('Logging warn level performance');
 end
-logger.info([num2str(toc(t)/N),'s taken per printed log.']);
+logger.info([num2str(toc(t)/N),'s taken per warn level log.']);
 
 %% Crashing program execution and logging the error.
 LogExampleClass().aClassMethodCrashingFatally();

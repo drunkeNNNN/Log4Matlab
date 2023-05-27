@@ -3,6 +3,7 @@
 % links are printed.
 classdef CommandWindow < Log4Matlab.Appenders.Appender
     methods(Access=public)
+        % Function called by the logger
         function appendToLog(obj,levelStr,sourceFilename,sourceLink,message,errorLineLink)
             if ~isempty(errorLineLink) && contains(message,'ERROR STACK')
                 if isdeployed()

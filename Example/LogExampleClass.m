@@ -1,3 +1,4 @@
+% Example class for demonstaration purposes
 classdef LogExampleClass<handle
     properties(Access=private)
         logger=Log4Matlab.Logger.getInstance();
