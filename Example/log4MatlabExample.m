@@ -82,16 +82,16 @@ logger.addAppender(Appenders.TextFile().setLogLevel(LogLevel.INFO)...
                                        .setOutputFilePath('PersistentInfoLog.log'));
 
 % 4.
-% Configure table appender (log data is stored in memory and a table can be
+% Configure memory appender (log data is stored in memory and a table can be
 % acquired at runtime at any place in the code through
 % logger.getInstance().getAppenders().
-tableAppender=Appenders.Table().setLogLevel(LogLevel.ERROR);
-% Table appender configured to exclusively print messages which match all
+memoryAppender=Appenders.Memory().setLogLevel(LogLevel.ERROR);
+% Memory appender configured to exclusively print messages which match all
 % regexes in the cell array.
-tableAppender.addFilter(Filters.Regex().setRegex({'table','item B'},Filters.Regex.MODE_ALL)...
+memoryAppender.addFilter(Filters.Regex().setRegex({'table','item B'},Filters.Regex.MODE_ALL)...
                                        .onMatch(FilterAction.ACCEPT)...
                                        .onMismatch(FilterAction.DENY));
-logger.addAppender(tableAppender);
+logger.addAppender(memoryAppender);
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %% Logging demonstration
@@ -145,7 +145,7 @@ testTableLarge=table(itemNames,itemDates,largeItemValues);
 logger.info('Large table data: ',testTableLarge);
 
 % Retrieve the filtered messages in the table appender, display the output
-logTable=tableAppender.getTable()
+logTable=memoryAppender.getTable()
 
 %% Performance
 N=50;
