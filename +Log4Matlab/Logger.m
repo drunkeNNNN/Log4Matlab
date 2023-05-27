@@ -7,18 +7,33 @@
 % The output destinations can be configured by adding Appenders to
 % instances of Logger class.
 %
+% Message filters and LogLevel
+% Hirarchy
+% Logger1
+%   logLevel1
+%   logFilters1
+%   <-Appender_1
+%     logLevel_Appender_1
+%     logFilters_Appender_1
+%   <-Appender_2
+%     logLevel_Appender_2
+%     logFilters_Appender_2
+% ...
+%
 % Logging priority is as follows (see obj.messageDoesPrint(...)):
-% 1. Logger.LogLevel.OFF || all(Appender.logLevel==LogLevel.OFF) -> deny
-% 2. Any appender filter yields FilterAction.ACCEPT -> accept
-% 3. Any appender filter yields FilterAction.DENY -> deny
-% 4. Any logger filter yields FilterAction.ACCEPT -> accept
-% 5. Any logger filter yields FilterAction.DENY -> deny
+% 1. Logger.LogLevel.OFF || all(Appender.logLevel==LogLevel.OFF) -> deny in logger
+% 2. Any appender filter yields FilterAction.ACCEPT -> accept in specific appender
+% 3. Any appender filter yields FilterAction.DENY -> deny in specific appender
+% 4. Any logger filter yields FilterAction.ACCEPT -> accept in logger
+% 5. Any logger filter yields FilterAction.DENY -> deny in logger
 % 6. Message LogLevel <= Appender.logLevel &&
-%    Message LogLevel <= Logger.logLevel -> accept
+%    Message LogLevel <= Logger.logLevel -> accept in specific appender
 % 7. -> deny
 classdef Logger < Log4Matlab.LogMessageFilterComponent
     properties(Access = private)
         appenders cell = cell(0);
+
+        fileLinkFormat double = Log4Matlab.FileLinkFormat.FILENAME;
         numericFormatSpec char = '%.5f\t';
         datetimeFormatSpec char = 'yyyy-MM-dd HH:mm:ss.SSS';
         durationFormatSpec char = 'dd:hh:mm:ss.SSS';
@@ -86,6 +101,14 @@ classdef Logger < Log4Matlab.LogMessageFilterComponent
 
         function appenders=getAppenders(obj)
             appenders=obj.appenders;
+        end
+
+        function setFileLinkFormat(obj,fileLinkFormat)
+            arguments
+                obj Log4Matlab.Logger;
+                fileLinkFormat (1,1) {isnumeric,ismember(fileLinkFormat,[0,1,2,3])};
+            end
+            obj.fileLinkFormat=fileLinkFormat;
         end
 
         function setNumericFormat(obj,formatSpec)
@@ -284,7 +307,17 @@ classdef Logger < Log4Matlab.LogMessageFilterComponent
             end
             try
                 [~,filename,ext]=fileparts(stack(depth,1).file);
-                scriptLink=['<a href="matlab:opentoline(''',stack(depth,1).file ,''',', num2str(stack(depth,1).line),',0)">', filename,ext,':', num2str(stack(depth,1).line),':',stack(depth,1).name,'</a>'];
+                switch obj.fileLinkFormat
+                    case Log4Matlab.FileLinkFormat.OFF
+                        scriptLink=[filename,ext,'(',num2str(stack(depth,1).line),')'];
+                    case Log4Matlab.FileLinkFormat.FILENAME
+                        scriptLink=['<a href="matlab:opentoline(''',stack(depth,1).file ,''',', num2str(stack(depth,1).line),',0)">', filename,ext,'(', num2str(stack(depth,1).line),')</a>'];
+                    case Log4Matlab.FileLinkFormat.CLASS_AND_METHOD
+                        scriptLink=['<a href="matlab:opentoline(''',stack(depth,1).file ,''',', num2str(stack(depth,1).line),',0)">', stack(depth,1).name,'</a>'];
+                    case Log4Matlab.FileLinkFormat.FULL
+                        scriptLink=['<a href="matlab:opentoline(''',stack(depth,1).file ,''',', num2str(stack(depth,1).line),',0)">', filename,ext,'(', num2str(stack(depth,1).line),'):',stack(depth,1).name,'</a>'];
+                    
+                end
             catch
                 scriptLink='';
             end

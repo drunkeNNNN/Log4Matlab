@@ -20,7 +20,14 @@ logger.clearAppenders();
 logger.clearFilters();
 
 % Configure the numeric format according to num2str for printing numbers.
-logger.setNumericFormat('%3.2f\t');
+logger.setNumericFormat('%3.3f\t');
+%logger.setNumericFormat('%3.5E\t');
+
+% Configure the format of links to files in the output (CommandWindow and Table appenders)
+%logger.setFileLinkFormat(FileLinkFormat.OFF);
+% logger.setFileLinkFormat(FileLinkFormat.FILENAME);
+% logger.setFileLinkFormat(FileLinkFormat.CLASS_AND_METHOD);
+% logger.setFileLinkFormat(FileLinkFormat.FULL);
 
 %% Message filters and LogLevel
 %% Hirarchy
@@ -80,8 +87,7 @@ logger.addAppender(Appenders.TextFile().setLogLevel(LogLevel.INFO)...
 % logger.getInstance().getAppenders().
 tableAppender=Appenders.Table().setLogLevel(LogLevel.ERROR);
 % Table appender configured to exclusively print messages which match all
-% regexes in the cell array (filter ignores above-configured log level).
-% -> does not print largeTableData
+% regexes in the cell array.
 tableAppender.addFilter(Filters.Regex().setRegex({'table','item B'},Filters.Regex.MODE_ALL)...
                                        .onMatch(FilterAction.ACCEPT)...
                                        .onMismatch(FilterAction.DENY));

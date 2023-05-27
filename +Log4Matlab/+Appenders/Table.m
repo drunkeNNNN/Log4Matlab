@@ -1,3 +1,5 @@
+% Stores logs in memory. Stored logs are not filtered when log levels and filters are
+% adapted at runtime. Use obj.getTable() to filter logs.
 classdef Table < Log4Matlab.Appenders.Appender
     properties(Access=private)
         data (:,6) cell;
@@ -5,6 +7,7 @@ classdef Table < Log4Matlab.Appenders.Appender
 
     methods(Access=public)
         function resetData(obj)
+            % Use cell array for performance
             obj.data=cell(0,6);
         end
 

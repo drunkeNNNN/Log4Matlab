@@ -13,11 +13,11 @@ classdef LogMessageFilterComponent < handle
             logLevel=obj.logLevel;
         end
 
-        function clearFilters(obj)
+        function obj=clearFilters(obj)
             obj.filters=cell(0);
         end
 
-        function addFilter(obj,filter)
+        function obj=addFilter(obj,filter)
             arguments
                 obj Log4Matlab.LogMessageFilterComponent;
                 filter Log4Matlab.Filters.Filter;
