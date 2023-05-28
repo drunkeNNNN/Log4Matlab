@@ -78,12 +78,12 @@ logger.addAppender(Appenders.TextFile().setLogLevel(LogLevel.TRACE)...
 % Configure text file appender, which always prints to the same file. Each
 % time the script runs, logs are added to the bottom of the file.
 logger.addAppender(Appenders.TextFile().setLogLevel(LogLevel.INFO)...
-                                       .setOutputFilePath('PersistentInfoLog.log'));
+                                       .setOutputFilePath('PersistentInfoLog.log',false));
 
 % 4.
 % Configure memory appender (log data is stored in memory and a table can be
 % acquired at runtime at any place in the code through
-% logger.getInstance().getAppenders().
+% logger.getInstance().getAppenders()).
 memoryAppender=Appenders.Memory().setLogLevel(LogLevel.ERROR);
 % Memory appender configured to exclusively print messages which match all
 % regexes in the cell array.

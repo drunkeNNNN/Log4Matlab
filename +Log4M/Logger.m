@@ -36,7 +36,7 @@ classdef Logger < Log4M.LogMessageFilterComponent
         appenders cell = cell(0);
 
         fileLinkFormat double = Log4M.FileLinkFormat.FILENAME;
-        numericFormatSpec char = '%.5f\t';
+        numericFormatSpec char = '%.5f';
         datetimeFormatSpec char = 'yyyy-MM-dd HH:mm:ss.SSS';
         durationFormatSpec char = 'dd:hh:mm:ss.SSS';
     end
