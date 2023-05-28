@@ -13,7 +13,7 @@ classdef Regex < Log4M.Filters.Filter
         function obj = setRegex(obj,regexes,regexMode)
             arguments
                 obj;
-                regexes;
+                regexes {validateFilterRegexes(obj,regexes)};
                 regexMode double = 1;
             end
             obj.regexMode=regexMode;
@@ -25,6 +25,10 @@ classdef Regex < Log4M.Filters.Filter
     end
     methods(Access=protected)
         function doesMatch=matches(obj,message)
+            arguments
+                obj Log4M.Filters.Regex;
+                message char;
+            end
             if isempty(obj.regexes)
                 doesMatch=true;
                 return;
@@ -47,6 +51,19 @@ classdef Regex < Log4M.Filters.Filter
             else 
                 doesMatch=~isempty(regexp(message,regexString, 'once'));
             end
+        end
+
+        function validateFilterRegexes(~,filterRegexes)
+            if ischar(filterRegexes) || isstring(filterRegexes)
+                return;
+            elseif iscell(filterRegexes)
+                isString=cellfun(@isstring,filterRegexes,'UniformOutput',true);
+                isChar=cellfun(@ischar,filterRegexes,'UniformOutput',true);
+                if all(isString|isChar)
+                    return;
+                end
+            end
+            error('filterRegex must be a char, string or a cell array of chars or strings.');
         end
     end
 end

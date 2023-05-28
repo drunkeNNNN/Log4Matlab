@@ -14,7 +14,7 @@ import Log4M.*;
 % created by passing a char identifier to getInstance
 logger=Logger.getInstance();
 
-% Methods to clear the appenders and filters. Alternative: clear all;
+% Methods to clear the appenders and filters from previous runs. Alternative: clear all;
 logger.clearAppenders();
 logger.clearFilters();
 
@@ -148,27 +148,14 @@ largeItemValues=itemValues+100;
 testTableLarge=table(itemNames,itemDates,itemCats,largeItemValues);
 logger.info('Large table data: ',testTableLarge);
 
+% Logging a timetable
 testTimetable=timetable(vertcat(itemDates{:}),itemNames,itemCats,largeItemValues./1E3);
 logger.warn('Logging timetable data: ',testTimetable);
 
-% Retrieve the filtered messages in the memory appender as a table
+%% Retrieve the filtered messages in the memory appender as a table
 logTable=memoryAppender.getTable()
 % display and filter the data in post analysis
 filteredLogTable=logTable(strcmp(logTable.LevelStr,'WARN'),:)
-
-%% Performance
-N=50;
-t=tic;
-for i=1:N
-    logger.trace('Logging trace level performance');
-end
-logger.info([num2str(toc(t)/N),'s taken per trace level log.']);
-
-t=tic;
-for i=1:N
-    logger.warn('Logging warn level performance');
-end
-logger.info([num2str(toc(t)/N),'s taken per warn level log.']);
 
 %% Crashing program execution and logging the error.
 LogExampleClass().aClassMethodCrashingFatally();
