@@ -5,6 +5,7 @@ The logger is inspired by the popular [log4j framework](https://logging.apache.o
 - Message regex filtering for loggers and appenders
 - Fully deployment compatible
 - Convenience interface for single line logs for small projects
+- Available on [![View Log4Matlab on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/130159-log4matlab)
 
 ## Features
 ### Convenience interface
