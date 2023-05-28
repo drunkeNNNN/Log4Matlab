@@ -59,32 +59,6 @@ classdef Logger < Log4M.LogMessageFilterComponent
                 loggerInstance = persistentLoggerMap(loggerIdentifier);
             end
         end
-
-        function levelStr=levelToString(level)
-            arguments
-                level (1,1) {isnumeric}
-            end
-            switch level
-                case{Log4M.LogLevel.ALL}
-                    levelStr = 'ALL';
-                case{Log4M.LogLevel.TRACE}
-                    levelStr = 'TRACE';
-                case{Log4M.LogLevel.DEBUG}
-                    levelStr = 'DEBUG';
-                case{Log4M.LogLevel.INFO}
-                    levelStr = 'INFO';
-                case{Log4M.LogLevel.WARN}
-                    levelStr = 'WARN';
-                case{Log4M.LogLevel.ERROR}
-                    levelStr = 'ERROR';
-                case{Log4M.LogLevel.FATAL}
-                    levelStr = 'FATAL';
-                case{Log4M.LogLevel.OFF}
-                    levelStr = 'OFF';
-                otherwise
-                    error(['Unknown error level: ',num2str(level)]);
-            end
-        end
     end
 
     %% Public Methods Section %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -189,22 +163,18 @@ classdef Logger < Log4M.LogMessageFilterComponent
 
     methods (Access = private)
         function writeLog(obj,messageLogLevel,varargin)
-            if all(cellfun(@(appender)(appender.getLogLevel()==Log4M.LogLevel.OFF),obj.appenders,'UniformOutput',true),"all")...
-                    || obj.getLogLevel==Log4M.LogLevel.OFF
+            if obj.getLogLevel==Log4M.LogLevel.OFF || ...
+               all(cellfun(@(appender)(appender.getLogLevel()==Log4M.LogLevel.OFF),obj.appenders,'UniformOutput',true),"all") 
                 return;
             end
             
-            stackTraceInformation=dbstack("-completenames");
-            try
-                sourceFilename=[stackTraceInformation(3,1).file,' (Line ', num2str(stackTraceInformation(3,1).line),')'];
-            catch
-                sourceFilename='';
-            end
+            messageLogLevelString=Log4M.LogLevel.levelToString(messageLogLevel);
+              
+            est=Log4M.Core.ExternalStackTrace().init();
+            depth=1;
+            sourceLink=est.getSourceLink(depth,obj.fileLinkFormat);
+            sourceFilename=[est.getFullSourcePath(depth),' (Line ',est.getSourceLine(depth),')'];
             [messageLines,errorLinks]=parseVararginToMessages(obj,varargin{:});
-            
-            sourceLink=obj.getStackTraceFileLink([],[]);
-            messageLogLevelString=Log4M.Logger.levelToString(messageLogLevel);
-                
             for i=1:size(messageLines,1)
                 % consistent with filter strategy in appender
                 filterString=[messageLogLevelString,' ',sourceFilename,' ',messageLines{i,1},' ',errorLinks{i,1}];
@@ -219,146 +189,11 @@ classdef Logger < Log4M.LogMessageFilterComponent
         end
 
         function [outputLines,errorLineLinks]=parseVararginToMessages(obj,varargin)
-            outputLines=cell(1,1);
-            errorLineLinks=cell(1,1);
-            outputLines{1,1}='';
-            errorLineLinks{1,1}='';
-            for i=1:numel(varargin)
-                if ischar(varargin{i})
-                    outputLines{1,1}=[outputLines{1,1},char(varargin{i})];
-                elseif isstring(varargin{i}) || iscategorical(varargin{i})
-                    if size(varargin{i},1)==1
-                        % Print skalars and row vectors in same line
-                        outputLines{1,1}=[outputLines{1,1},char(varargin{i})];
-                    else
-                        % Matrix in multiline
-                        for j=1:size(varargin{i},1)
-                            outputLines{end+1,1}=[outputLines{1,1},char(varargin{i}(j,:))];
-                            errorLineLinks{end+1,1}='';
-                        end
-                    end
-                
-                elseif isdatetime(varargin{i}) || isduration(varargin{i})
-                    if isdatetime(varargin{i})
-                        formatSpec=obj.datetimeFormatSpec;
-                    elseif isduration(varargin{i})
-                        formatSpec=obj.durationFormatSpec;
-                    else
-                        error('Unknown datatype.')
-                    end
-                    if size(varargin{i},1)==1
-                        % Print skalars and row vectors in same line
-                        outputLines{1,1}=[outputLines{1,1},char(varargin{i},formatSpec)];
-                    else
-                        % Matrix in multiline
-                        for j=1:size(varargin{i},1)
-                            outputLines{end+1,1}=[outputLines{1,1},char(varargin{i}(j,:),formatSpec)];
-                            errorLineLinks{end+1,1}='';
-                        end
-                    end
-                elseif isnumeric(varargin{i})
-                    if size(varargin{i},1)==1
-                        % Print skalars and row vectors in same line
-                        outputLines{1,1}=[outputLines{1,1},num2str(varargin{i},obj.numericFormatSpec)];
-                    else
-                        % Matrix in multiline
-                        for j=1:size(varargin{i},1)
-                            outputLines{end+1,1}=[outputLines{1,1},num2str(varargin{i}(j,:),obj.numericFormatSpec)];
-                            errorLineLinks{end+1,1}='';
-                        end
-                    end
-                elseif islogical(varargin{i})
-                    if varargin{i}
-                        outputLines{1,1}=[outputLines{1,1},'true'];
-                    else
-                        outputLines{1,1}=[outputLines{1,1},'false'];
-                    end
-                elseif isa(varargin{i},'function_handle')
-                    outputLines{1,1}=[outputLines{1,1},'@',char(varargin{i})];
-                elseif isa(varargin{i},'MException')
-                    outputLines{end+1,1}=['ERROR: ',class(varargin{i}),'(',varargin{i}.identifier,'): ',varargin{i}.message];
-                    errorLineLinks{end+1,1}='';
-                    for j=1:size(varargin{i}.stack,1)
-                        outputLines{end+1,1}=['ERROR STACK ',num2str(j),':',varargin{i}.stack(j).file,' (Line ',num2str(varargin{i}.stack(j).line),')'];
-                        errorLineLinks{end+1,1}=obj.getStackTraceFileLink(varargin{i}.stack,j);
-                    end
-                elseif isa(varargin{i},'cell')
-                    for j=1:size(varargin{i},1)
-                        cellLine='';
-                        for k=1:size(varargin{i},2)
-                            parsedCellArrayContent=obj.parseVararginToMessages(varargin{i}{j,k});
-                            if k<size(varargin{i},2)
-                                cellLine=[cellLine,parsedCellArrayContent{:},', '];
-                            else
-                                cellLine=[cellLine,parsedCellArrayContent{:}];
-                            end
-                        end
-                        if j==1 && size(varargin{i},1)==1
-                            outputLines{1,1}=[outputLines{1,1},strtrim(cellLine)];
-                        else
-                            outputLines{end+1,1}=[outputLines{1,1},strtrim(cellLine)];
-                            errorLineLinks{end+1,1}='';
-                        end
-                    end
-                elseif istable(varargin{i}) || istimetable(varargin{i})
-                    if istimetable(varargin{i})
-                        tableCell=table2cell(timetable2table(varargin{i}));
-                        varNames=horzcat({'Time'},varargin{i}.Properties.VariableNames);
-                    
-                    elseif istable(varargin{i})
-                        tableCell=table2cell(varargin{i});
-                        varNames=varargin{i}.Properties.VariableNames;
-                    else
-                        error('Internal error, this should not happen.');
-                    end
-                    [outputLines,tableErrorLineLinks]=obj.parseVararginToMessages(outputLines{1,1},vertcat(varNames,tableCell));
-                    errorLineLinks=cat(1,errorLineLinks(:),tableErrorLineLinks(:));
-                else
-                    try
-                        strCellArray = cellfun(@strtrim,...
-                                      strsplit(matlab.unittest.diagnostics.ConstraintDiagnostic.getDisplayableString(varargin{i}),'\n'),...
-                                      'UniformOutput',false')';
-                        [objectLines,objectErrorLineLinks]=obj.parseVararginToMessages(outputLines{1,1},strCellArray);
-                        
-                        outputLines=cat(1,objectLines(:));
-                        errorLineLinks=cat(1,objectErrorLineLinks(:));
-                        try
-                            outputLines{end+1,1}=[outputLines{1,1},char(varargin{i})];
-                            errorLineLinks{end+1,1}='';
-                        end
-                    catch
-                        obj.error(['varargin{',num2str(i),'}',' could not be parsed. Unknown class ',class(varargin{i})]);
-                    end
-                end
-            end
-        end
-
-        function scriptLink=getStackTraceFileLink(obj,stack,depth)
-            if isempty(stack)
-                stack=dbstack('-completenames');
-            end
-            if isempty(depth)
-                depth=find(cellfun(@(x)(~contains(x,'\+Log4M') & ~contains(x,'\+log')),{stack.file},'UniformOutput',true),1,'first');
-            end
-            try
-                [~,filename,ext]=fileparts(stack(depth,1).file);
-                switch obj.fileLinkFormat
-                    case Log4M.FileLinkFormat.OFF
-                        scriptLink=[filename,ext,'(',num2str(stack(depth,1).line),')'];
-                    case Log4M.FileLinkFormat.FILENAME
-                        scriptLink=['<a href="matlab:opentoline(''',stack(depth,1).file ,''',', num2str(stack(depth,1).line),',0)">', filename,ext,'(', num2str(stack(depth,1).line),')</a>'];
-                    case Log4M.FileLinkFormat.CLASS_AND_METHOD
-                        scriptLink=['<a href="matlab:opentoline(''',stack(depth,1).file ,''',', num2str(stack(depth,1).line),',0)">', stack(depth,1).name,'</a>'];
-                    case Log4M.FileLinkFormat.FULL
-                        scriptLink=['<a href="matlab:opentoline(''',stack(depth,1).file ,''',', num2str(stack(depth,1).line),',0)">', filename,ext,'(', num2str(stack(depth,1).line),'):',stack(depth,1).name,'</a>'];
-                    
-                end
-            catch
-                scriptLink='';
-            end
-            if ispc
-                scriptLink=strrep(scriptLink, '\','\\');
-            end
+            mp=Log4M.Core.MessageParser();
+            mp.setDatetimeFormat(obj.datetimeFormatSpec);
+            obj.setDurationFormat(obj.durationFormatSpec);
+            obj.setNumericFormat(obj.numericFormatSpec);
+            [outputLines,errorLineLinks]=mp.parseMessage(varargin{:});
         end
 
         function doPrint=messageDoesPrint(obj,messageLogLevel,appenderLogLevel,isAppenderFilterAccepted,isAppenderFilterDenied,isLoggerFilterAccepted,isLoggerFilterDenied,message)

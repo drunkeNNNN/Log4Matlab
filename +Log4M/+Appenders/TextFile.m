@@ -43,7 +43,7 @@ classdef TextFile<Log4M.Appenders.Appender
                         , sourceFilename ...
                         , message);
                 else
-                    fprintf(fid,'%s\r\n', message);
+                    fprintf(fid,'%s %s\r\n', levelStr,message);
                 end
                 fclose(fid);
             catch ME_1

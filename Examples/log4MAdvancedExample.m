@@ -25,7 +25,7 @@ logger.setNumericFormat('%3.3f\t');
 % Configure the format of links to files in the output (CommandWindow and Table appenders)
 %logger.setFileLinkFormat(FileLinkFormat.OFF);
 % logger.setFileLinkFormat(FileLinkFormat.FILENAME);
-logger.setFileLinkFormat(FileLinkFormat.CLASS_AND_METHOD);
+logger.setFileLinkFormat(FileLinkFormat.SOURCE_NAME);
 % logger.setFileLinkFormat(FileLinkFormat.FULL);
 
 %% Message filters and LogLevel
@@ -120,15 +120,15 @@ LogExampleClass.aStaticClassMethodLogging();
 % Logging a caught error. The stack trace and links print to the console.
 try
     aFunctionWithAnError();
-catch e
-    logger.error('A non-fatal error occurred',e,' and nothing happened.');
+catch ex
+    logger.error('A non-fatal error occurred and nothing happened.',ex);
 end
 
 %% Logging complex data types
 % Numeric matrices and vectors
-logger.info('Logging a row vector: ',rand(1,3),' with additional line content.');
-logger.info('Logging a column vector ',rand(3,1))
-logger.info('Logging a matrix: ',rand(4,3));
+logger.info('Logging a (1x3) row vector: ',rand(1,3),' with additional line content.');
+logger.info('Logging a (3x1) column vector ',rand(3,1))
+logger.info('Logging a (4x3) matrix: ',rand(4,3));
 
 % Cell arrays.
 itemNames=cell(2,1);
@@ -139,7 +139,7 @@ logger.trace('Cell array print: ',itemNames);
 
 % Logging a table
 itemDates={datetime('yesterday');datetime('today');datetime('tomorrow')};
-itemCats=categorical(["CAT_A";"CAT_B";"CAT_B"]);
+itemCats=categorical(["CAT_A";"CAT_BD";"CAT_BD"]);
 itemValues=[10;20;30];
 testTableSmall=table(itemNames,itemDates,itemCats,itemValues);
 logger.debug('Small table data: ',testTableSmall);
@@ -154,7 +154,7 @@ logger.warn('Logging timetable data: ',testTimetable);
 
 %% Retrieve the filtered messages in the memory appender as a table
 logTable=memoryAppender.getTable()
-% display and filter the data in post analysis
+% Display and filter the data in post analysis
 filteredLogTable=logTable(strcmp(logTable.LevelStr,'WARN'),:)
 
 %% Crashing program execution and logging the error.

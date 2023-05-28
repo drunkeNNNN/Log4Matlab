@@ -11,7 +11,7 @@ logger.addAppender(Appenders.CommandWindow().setLogLevel(LogLevel.INFO));
 logger.addAppender(Appenders.TextFile().setLogLevel(LogLevel.TRACE)...
                                        .setOutputFilePath('Trace.log',true));
 
-%% Basic logging+
+%% Basic logging
 logger.info('Hello Log4M.');
 logger.info('This is a split message containing chars,'," strings, and the number pi ",pi,'.');
 logger.info('You can also log datetime ',datetime('now'),' and duration objects ',datetime("now")-datetime('yesterday'),'.');

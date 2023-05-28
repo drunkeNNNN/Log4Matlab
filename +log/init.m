@@ -9,12 +9,13 @@ function init(filename)
     logger.clearAppenders();
     logger.clearFilters();
     logger.setNumericFormat('%3.5f\t');
-    logger.setFileLinkFormat(FileLinkFormat.CLASS_AND_METHOD);
+    logger.setFileLinkFormat(FileLinkFormat.SOURCE_NAME);
     logger.setLogLevel(LogLevel.TRACE);
     logger.addAppender(Appenders.CommandWindow().setLogLevel(LogLevel.ALL));
 
     if ~isempty(filename)
         logger.addAppender(Appenders.TextFile().setLogLevel(LogLevel.ALL)...
-                                           .setOutputFilePath(filename,true));
+                                               .disableVerboseMode()...
+                                               .setOutputFilePath(filename,true));
     end
 end
