@@ -188,14 +188,6 @@ classdef Logger < Log4M.LogMessageFilterComponent
             end
         end
 
-        function [outputLines,errorLineLinks]=parseVararginToMessages(obj,varargin)
-            mp=Log4M.Core.MessageParser();
-            mp.setDatetimeFormat(obj.datetimeFormatSpec);
-            obj.setDurationFormat(obj.durationFormatSpec);
-            obj.setNumericFormat(obj.numericFormatSpec);
-            [outputLines,errorLineLinks]=mp.parseMessage(varargin{:});
-        end
-
         function doPrint=messageDoesPrint(obj,messageLogLevel,appenderLogLevel,isAppenderFilterAccepted,isAppenderFilterDenied,isLoggerFilterAccepted,isLoggerFilterDenied,message)
             if appenderLogLevel==Log4M.LogLevel.OFF || isempty(message)
                 doPrint=false;
