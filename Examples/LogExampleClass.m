@@ -21,11 +21,6 @@ classdef LogExampleClass<handle
             errorData=rand(1,4);
             obj.logger.fatal('A fatal error occurred. Recovered data: ',errorData);
         end
-
-        % implement the char function to parse the object for the logger
-        function parsed=char(obj)
-            parsed=[obj.identifier,': ',num2str(obj.data)];
-        end
     end
 end
 

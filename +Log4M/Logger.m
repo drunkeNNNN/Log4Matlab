@@ -174,9 +174,13 @@ classdef Logger < Log4M.LogMessageFilterComponent
             depth=1;
             sourceLink=est.getSourceLink(depth,obj.fileLinkFormat);
             sourceFilename=[est.getFullSourcePath(depth),' (Line ',est.getSourceLine(depth),')'];
-            [messageLines,errorLinks]=parseVararginToMessages(obj,varargin{:});
+            
+            mp=Log4M.Core.MessageParser();
+            mp.setNumericFormat(obj.numericFormatSpec);
+            mp.setDurationFormat(obj.durationFormatSpec);
+            mp.setDatetimeFormat(obj.datetimeFormatSpec);
+            [messageLines,errorLinks]=mp.parseMessage(varargin{:});
             for i=1:size(messageLines,1)
-                % consistent with filter strategy in appender
                 filterString=[messageLogLevelString,' ',sourceFilename,' ',messageLines{i,1},' ',errorLinks{i,1}];
                 [isLoggerFilterAccepted,isLoggerFilterDenied]=obj.getFilterResult(filterString);
                 for k=1:size(obj.appenders,1)
