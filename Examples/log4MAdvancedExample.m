@@ -60,7 +60,8 @@ logger.setLogLevel(LogLevel.TRACE);
 % Add a regex filter to the logger: Always accept messages containing
 % 'Cell'. Such messages can however be denied by appender filters.
 logger.addFilter(Filters.Regex().setRegex({'PRINT THIS'})...
-                                .onMatch(FilterAction.ACCEPT));
+                                .onMatch(FilterAction.ACCEPT)...
+                                .onMismatch(FilterAction.NEUTRAL));
 
 %% Configure Appenders
 % 1.
