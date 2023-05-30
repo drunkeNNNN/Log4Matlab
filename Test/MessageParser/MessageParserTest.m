@@ -27,8 +27,8 @@ classdef MessageParserTest < matlab.unittest.TestCase
     methods(Test)
         function shouldParseRandomObject(obj)
             lec=Log4M.LogLevel();
-            obj.verifyThatOutputFor('Object: ',lec);
-            obj.matches('Object:.* with properties:','inLine',1);
+            obj.verifyThatOutputFor('Object: ',lec)...
+               .matches('Object:.* with properties:','inLine',1);
             for i=2:size(obj.outputLines,1)
                 obj.matches('Object: \w+: \d','inLine',i);
             end

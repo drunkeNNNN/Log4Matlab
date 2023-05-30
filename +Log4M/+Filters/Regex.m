@@ -13,25 +13,33 @@ classdef Regex < Log4M.Filters.Filter
         function obj = setRegex(obj,regexes,regexMode)
             arguments
                 obj;
-                regexes {validateFilterRegexes(obj,regexes)};
-                regexMode double = 1;
+                regexes={};
+                regexMode double = obj.MODE_ANY;
             end
             obj.regexMode=regexMode;
-            if isstring(regexes)||ischar(regexes)
-                regexes={regexes};
+            regexes=obj.convertTextToCellArray(regexes);
+
+            delete=false(size(regexes));
+            for i=1:numel(regexes)
+                if isempty(regexes{i})
+                    delete(i)=true;
+                elseif isstring(regexes{i}) && regexes{i}==""
+                    delete(i)=true;
+                end
             end
-            obj.regexes=regexes;
+            obj.regexes=regexes(~delete);
         end
     end
+
     methods(Access=protected)
+        function enabled=isEnabled(obj)
+            enabled=~isempty(obj.regexes);
+        end
+
         function doesMatch=matches(obj,message)
             arguments
                 obj Log4M.Filters.Regex;
                 message char;
-            end
-            if isempty(obj.regexes)
-                doesMatch=true;
-                return;
             end
             doesMatchesSingleRegex=cellfun(@(x)(obj.matchesSingleRegex(message,x)),obj.regexes,'UniformOutput',true);
             switch obj.regexMode
@@ -40,15 +48,34 @@ classdef Regex < Log4M.Filters.Filter
                 case obj.MODE_ANY
                     doesMatch=any(doesMatchesSingleRegex);
                 otherwise
-                    error('Class internal error. Wrong regex mode should be validated in setter argument block.')
+                    error('Class internal error. Wrong regex mode should be validated in setter argument block.');
             end
-
+        end
+    end
+    methods(Access=private)
+        function regexes=convertTextToCellArray(~,regexes)
+            if isempty(regexes)
+                regexes={};
+            elseif ischar(regexes)
+                regexes={regexes};
+            elseif isstring(regexes)
+                if regexes==""
+                    regexes={};
+                elseif isscalar(regexes)
+                    regexes={regexes};
+                else
+                    regexes={regexes{:}};
+                end
+            end
+            if ~iscell(regexes)
+                error('Regexes must be string, char, or a cell array of strings and chars.');
+            end
         end
 
         function doesMatch=matchesSingleRegex(~,message,regexString)
             if isempty(regexString)
                 doesMatch=true;
-            else 
+            else
                 doesMatch=~isempty(regexp(message,regexString, 'once'));
             end
         end

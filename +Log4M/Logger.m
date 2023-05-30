@@ -36,7 +36,7 @@ classdef Logger < Log4M.LogMessageFilterComponent
         appenders cell = cell(0);
 
         fileLinkFormat double = Log4M.FileLinkFormat.FILENAME;
-        numericFormatSpec char = '%.5f';
+        numericFormatSpec char = '%g';
         datetimeFormatSpec char = 'yyyy-MM-dd HH:mm:ss.SSS';
         durationFormatSpec char = 'dd:hh:mm:ss.SSS';
     end
@@ -83,6 +83,38 @@ classdef Logger < Log4M.LogMessageFilterComponent
             appenders=obj.appenders;
         end
 
+        function setMemoryLogLevel(obj,logLevel)
+            obj.setAppenderLogLevels(class(Log4M.Appenders.Memory()),logLevel);
+        end
+
+        function setTextFileLogLevel(obj,logLevel)
+            obj.setAppenderLogLevels(class(Log4M.Appenders.TextFile()),logLevel);
+        end
+
+        function setCommandWindowLevel(obj,logLevel)
+            obj.setAppenderLogLevels(class(Log4M.Appenders.CommandWindow()),logLevel);
+        end
+
+        function setAppenderLogLevels(obj,appenderClassname,logLevel)
+            selectedAppenders=obj.getAppendersByClassname(appenderClassname);
+            cellfun(@(appender)(appender.setLogLevel(logLevel)),selectedAppenders);
+        end
+
+        % Returns all appenders for a given classname
+        function appenders=getAppendersByClassname(obj,classname)
+            arguments
+                obj;
+                classname (1,:) char;
+            end
+            appenders=obj.getAppenders();
+            appenderTypeMatches=cellfun(@(x)(strcmp(class(x),classname)),appenders,'UniformOutput',true);
+            if isempty(appenders) || ~any(appenderTypeMatches)
+                appenders={};
+            else
+                appenders=appenders(appenderTypeMatches);
+            end
+        end
+
         % Sets format of file links. See Log4M.FileLinkFormat
         function setFileLinkFormat(obj,fileLinkFormat)
             arguments
@@ -97,7 +129,7 @@ classdef Logger < Log4M.LogMessageFilterComponent
             arguments
                 obj Log4M.Logger
                 % same as in num2str
-                formatSpec char; 
+                formatSpec char;
             end
             obj.numericFormatSpec=formatSpec;
         end
@@ -129,7 +161,7 @@ classdef Logger < Log4M.LogMessageFilterComponent
         function all(obj, varargin)
             obj.writeLog(Log4M.LogLevel.ALL,varargin{:});
         end
-        
+
         function trace(obj, varargin)
             obj.writeLog(Log4M.LogLevel.TRACE,varargin{:});
         end
@@ -164,17 +196,17 @@ classdef Logger < Log4M.LogMessageFilterComponent
     methods (Access = private)
         function writeLog(obj,messageLogLevel,varargin)
             if obj.getLogLevel==Log4M.LogLevel.OFF || ...
-               all(cellfun(@(appender)(appender.getLogLevel()==Log4M.LogLevel.OFF),obj.appenders,'UniformOutput',true),"all") 
+                    all(cellfun(@(appender)(appender.getLogLevel()==Log4M.LogLevel.OFF),obj.appenders,'UniformOutput',true),"all")
                 return;
             end
-            
+
             messageLogLevelString=Log4M.LogLevel.levelToString(messageLogLevel);
-              
+
             est=Log4M.Core.ExternalStackTrace().init();
             depth=1;
             sourceLink=est.getSourceLink(depth,obj.fileLinkFormat);
             sourceFilename=[est.getFullSourcePath(depth),' (Line ',est.getSourceLine(depth),')'];
-            
+
             mp=Log4M.Core.MessageParser();
             mp.setNumericFormat(obj.numericFormatSpec);
             mp.setDurationFormat(obj.durationFormatSpec);

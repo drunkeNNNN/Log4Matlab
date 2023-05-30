@@ -11,11 +11,10 @@ function init(filename)
     logger.setNumericFormat('%3.5f\t');
     logger.setFileLinkFormat(FileLinkFormat.SOURCE_NAME);
     logger.setLogLevel(LogLevel.TRACE);
-    logger.addAppender(Appenders.CommandWindow().setLogLevel(LogLevel.ALL));
+    logger.addAppender(Appenders.CommandWindow());
 
     if ~isempty(filename)
-        logger.addAppender(Appenders.TextFile().setLogLevel(LogLevel.ALL)...
-                                               .disableVerboseMode()...
+        logger.addAppender(Appenders.TextFile().disableVerboseMode()...
                                                .setOutputFilePath(filename,true));
     end
 end
