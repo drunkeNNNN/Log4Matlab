@@ -1,11 +1,15 @@
 classdef Filter < handle
     properties(Access=private)
-        onMatchAction=Log4M.FilterAction.ACCEPT;
-        onMismatchAction=Log4M.FilterAction.DENY;
+        onMatchAction (1,1) {Log4M.FilterAction}=Log4M.FilterAction.ACCEPT;
+        onMismatchAction (1,1) {Log4M.FilterAction}=Log4M.FilterAction.DENY;
     end
 
     methods(Access=public)
         function result=applyFilter(obj,message)
+            arguments
+                obj;
+                message (1,:) char;
+            end
             if ~obj.isEnabled()
                 result=Log4M.FilterAction.NEUTRAL;
             elseif obj.matches(message)

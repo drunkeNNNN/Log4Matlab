@@ -8,7 +8,7 @@ clc;
 FILENAME='convenicence.log';
 log.init(FILENAME);
 
-% Optional: configure LogLevel. Otherwise, all messages are printed
+% Optional: configure LogLevel. Otherwise, all messages are printed.
 log.setLevel(Log4M.LogLevel.TRACE);
 
 % Optional: configure message filter

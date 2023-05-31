@@ -84,18 +84,35 @@ classdef Logger < Log4M.LogMessageFilterComponent
         end
 
         function setMemoryLogLevel(obj,logLevel)
+            arguments
+                obj;
+                logLevel (1,1) {Log4M.LogLevel}
+            end
             obj.setAppenderLogLevels(class(Log4M.Appenders.Memory()),logLevel);
         end
 
         function setTextFileLogLevel(obj,logLevel)
+            arguments
+                obj;
+                logLevel (1,1) {Log4M.LogLevel}
+            end
             obj.setAppenderLogLevels(class(Log4M.Appenders.TextFile()),logLevel);
         end
 
         function setCommandWindowLevel(obj,logLevel)
+            arguments
+                obj;
+                logLevel (1,1) {Log4M.LogLevel}
+            end
             obj.setAppenderLogLevels(class(Log4M.Appenders.CommandWindow()),logLevel);
         end
 
         function setAppenderLogLevels(obj,appenderClassname,logLevel)
+            arguments
+                obj;
+                appenderClassname (1,:) char;
+                logLevel (1,1) {Log4M.LogLevel}
+            end
             selectedAppenders=obj.getAppendersByClassname(appenderClassname);
             cellfun(@(appender)(appender.setLogLevel(logLevel)),selectedAppenders);
         end
