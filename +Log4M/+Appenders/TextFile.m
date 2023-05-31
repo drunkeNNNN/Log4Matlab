@@ -29,7 +29,7 @@ classdef TextFile<Log4M.Appenders.Appender
         end
 
         % Function called by the Logger
-        function appendToLog(obj,levelStr,sourceFilename,sourceLink,message,errorLineLink)
+        function appendToLog(obj,logLevel,sourceFilename,sourceLink,message,errorLineLink)
             if isempty(obj.outputFilePath)
                 obj.newFile();
             end
@@ -39,11 +39,11 @@ classdef TextFile<Log4M.Appenders.Appender
                 if obj.verboseModeEnabled
                     fprintf(fid,'%s %s %s: %s\r\n' ...
                         , char(datetime('now','Format','yyyy-MM-dd HH:mm:ss.SSS')) ...
-                        , levelStr ...
+                        , logLevel ...
                         , sourceFilename ...
                         , message);
                 else
-                    fprintf(fid,'%s %s\r\n', levelStr,message);
+                    fprintf(fid,'%s %s\r\n', logLevel,message);
                 end
                 fclose(fid);
             catch ME_1

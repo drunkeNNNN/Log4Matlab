@@ -84,18 +84,35 @@ classdef Logger < Log4M.LogMessageFilterComponent
         end
 
         function setMemoryLogLevel(obj,logLevel)
+            arguments
+                obj;
+                logLevel (1,1) {Log4M.LogLevel}
+            end
             obj.setAppenderLogLevels(class(Log4M.Appenders.Memory()),logLevel);
         end
 
         function setTextFileLogLevel(obj,logLevel)
+            arguments
+                obj;
+                logLevel (1,1) {Log4M.LogLevel}
+            end
             obj.setAppenderLogLevels(class(Log4M.Appenders.TextFile()),logLevel);
         end
 
         function setCommandWindowLevel(obj,logLevel)
+            arguments
+                obj;
+                logLevel (1,1) {Log4M.LogLevel}
+            end
             obj.setAppenderLogLevels(class(Log4M.Appenders.CommandWindow()),logLevel);
         end
 
         function setAppenderLogLevels(obj,appenderClassname,logLevel)
+            arguments
+                obj;
+                appenderClassname (1,:) char;
+                logLevel (1,1) {Log4M.LogLevel}
+            end
             selectedAppenders=obj.getAppendersByClassname(appenderClassname);
             cellfun(@(appender)(appender.setLogLevel(logLevel)),selectedAppenders);
         end
@@ -166,6 +183,10 @@ classdef Logger < Log4M.LogMessageFilterComponent
             obj.writeLog(Log4M.LogLevel.TRACE,varargin{:});
         end
 
+        function detail(obj,varargin)
+            obj.writeLog(Log4M.LogLevel.DETAIL,varargin{:});
+        end
+
         function debug(obj, varargin)
             obj.writeLog(Log4M.LogLevel.DEBUG,varargin{:});
         end
@@ -176,6 +197,10 @@ classdef Logger < Log4M.LogMessageFilterComponent
 
         function warn(obj, varargin)
             obj.writeLog(Log4M.LogLevel.WARN,varargin{:});
+        end
+
+        function critical(obj,varargin)
+            obj.writeLog(Log4M.LogLevel.CRITICAL,varargin{:});
         end
 
         function error(obj, varargin)
@@ -200,12 +225,10 @@ classdef Logger < Log4M.LogMessageFilterComponent
                 return;
             end
 
-            messageLogLevelString=Log4M.LogLevel.levelToString(messageLogLevel);
-
             est=Log4M.Core.ExternalStackTrace().init();
-            depth=1;
-            sourceLink=est.getSourceLink(depth,obj.fileLinkFormat);
-            sourceFilename=[est.getFullSourcePath(depth),' (Line ',est.getSourceLine(depth),')'];
+            externalStackDepth=1;
+            sourceLink=est.getSourceLink(externalStackDepth,obj.fileLinkFormat);
+            sourceFilename=[est.getFullSourcePath(externalStackDepth),' (Line ',est.getSourceLine(externalStackDepth),')'];
 
             mp=Log4M.Core.MessageParser();
             mp.setNumericFormat(obj.numericFormatSpec);
@@ -213,12 +236,12 @@ classdef Logger < Log4M.LogMessageFilterComponent
             mp.setDatetimeFormat(obj.datetimeFormatSpec);
             [messageLines,errorLinks]=mp.parseMessage(varargin{:});
             for i=1:size(messageLines,1)
-                filterString=[messageLogLevelString,' ',sourceFilename,' ',messageLines{i,1},' ',errorLinks{i,1}];
+                filterString=[char(messageLogLevel),' ',sourceFilename,' ',messageLines{i,1},' ',errorLinks{i,1}];
                 [isLoggerFilterAccepted,isLoggerFilterDenied]=obj.getFilterResult(filterString);
                 for k=1:size(obj.appenders,1)
                     [isAppenderFilterAccepted,isAppenderFilterDenied]=obj.appenders{k,1}.getFilterResult(filterString);
                     if obj.messageDoesPrint(messageLogLevel,obj.appenders{k,1}.getLogLevel(),isAppenderFilterAccepted,isAppenderFilterDenied,isLoggerFilterAccepted,isLoggerFilterDenied,messageLines{i,1})
-                        obj.appenders{k,1}.appendToLog(messageLogLevelString,sourceFilename,sourceLink,messageLines{i,1},errorLinks{i,1});
+                        obj.appenders{k,1}.appendToLog(messageLogLevel,sourceFilename,sourceLink,messageLines{i,1},errorLinks{i,1});
                     end
                 end
             end

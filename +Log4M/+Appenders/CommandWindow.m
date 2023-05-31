@@ -4,7 +4,7 @@
 classdef CommandWindow < Log4M.Appenders.Appender
     methods(Access=public)
         % Function called by the logger
-        function appendToLog(obj,levelStr,sourceFilename,sourceLink,message,errorLineLink)
+        function appendToLog(obj,logLevel,sourceFilename,sourceLink,message,errorLineLink)
             if ~isempty(errorLineLink) && contains(message,'ERROR STACK')
                 if isdeployed()
                 else
@@ -13,12 +13,12 @@ classdef CommandWindow < Log4M.Appenders.Appender
             end
             if obj.verboseModeEnabled
                 if isdeployed()
-                    disp([datestr(now,'yyyy-mm-dd HH:MM:SS.FFF'), ' ', levelStr,' ',sourceFilename, ' ',message]);
+                    disp([datestr(now,'yyyy-mm-dd HH:MM:SS.FFF'), ' ', char(logLevel),' ',sourceFilename, ' ',message]);
                 else
-                    disp([datestr(now,'yyyy-mm-dd HH:MM:SS.FFF'), ' ', levelStr,' ',sourceLink, ' ',message]);
+                    disp([datestr(now,'yyyy-mm-dd HH:MM:SS.FFF'), ' ', char(logLevel),' ',sourceLink, ' ',message]);
                 end
             else
-                disp([levelStr,' ',message]);
+                disp([logLevel,' ',message]);
             end
         end
     end

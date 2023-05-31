@@ -3,7 +3,7 @@
 classdef LogMessageFilterComponent < handle
     properties(Access=private)
         filters cell = cell(0);
-        logLevel (1,1) double = Log4M.LogLevel.ALL;
+        logLevel (1,1) Log4M.LogLevel = Log4M.LogLevel.ALL;
     end
     
     methods(Access=public)
