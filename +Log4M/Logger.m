@@ -166,6 +166,10 @@ classdef Logger < Log4M.LogMessageFilterComponent
             obj.writeLog(Log4M.LogLevel.TRACE,varargin{:});
         end
 
+        function detail(obj,varargin)
+            obj.writeLog(Log4M.LogLevel.DETAIL,varargin{:});
+        end
+
         function debug(obj, varargin)
             obj.writeLog(Log4M.LogLevel.DEBUG,varargin{:});
         end
@@ -176,6 +180,10 @@ classdef Logger < Log4M.LogMessageFilterComponent
 
         function warn(obj, varargin)
             obj.writeLog(Log4M.LogLevel.WARN,varargin{:});
+        end
+
+        function critical(obj,varargin)
+            obj.writeLog(Log4M.LogLevel.CRITICAL,varargin{:});
         end
 
         function error(obj, varargin)

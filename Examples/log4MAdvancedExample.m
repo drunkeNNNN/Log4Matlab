@@ -106,7 +106,7 @@ logger.trace('This message does not print and is filtered out. Change log level 
 % configured above (overriding the log level)
 logger.trace('PRINT THIS <- two function handles horizontally: ',{@Log4M.Logger,@Log4M.Filters.Filter})
 logger.trace('PRINT THIS <- two function handles vertically: ',{@Log4M.Logger;@Log4M.Filters.Filter})
-logger.info('A random object: ',Log4M.LogLevel());
+logger.info('A random object: ',Log4M.LogLevel.DEBUG);
 logger.info('An object with configured char fun: ',LogExampleClass());
 
 %% Logging in different code areas.
