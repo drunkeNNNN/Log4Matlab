@@ -93,6 +93,9 @@ memoryAppender=Appenders.Memory().setLogLevel(LogLevel.ALL);
 %                                         .onMismatch(FilterAction.DENY));
 logger.addAppender(memoryAppender);
 
+guiAppender=Appenders.GUI().setLogLevel(LogLevel.ALL);
+logger.addAppender(guiAppender);
+
 %%%%%%%%%%%%%%%%%%%%%%%%
 %% Logging demonstration
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -106,7 +109,7 @@ logger.trace('This message does not print and is filtered out. Change log level 
 % configured above (overriding the log level)
 logger.trace('PRINT THIS <- two function handles horizontally: ',{@Log4M.Logger,@Log4M.Filters.Filter})
 logger.trace('PRINT THIS <- two function handles vertically: ',{@Log4M.Logger;@Log4M.Filters.Filter})
-logger.info('A random object: ',Log4M.LogLevel.DEBUG);
+logger.info('A random object: ',matlab.unittest.TestCase.forInteractiveUse());
 logger.info('An object with configured char fun: ',LogExampleClass());
 
 %% Logging in different code areas.
@@ -156,7 +159,11 @@ logger.warn('Logging timetable data: ',testTimetable);
 %% Retrieve the filtered messages in the memory appender as a table
 logTable=memoryAppender.getTable()
 % Display and filter the data in post analysis
-filteredLogTable=logTable(strcmp(logTable.LevelStr,'WARN'),:);
+filteredLogTable=logTable(strcmp(logTable.LogLevelStr,'WARN'),:);
+
+for i=1:1E3
+    logger.critical('Critical log: ',i)
+end
 
 %% Crashing program execution and logging the error.
 LogExampleClass().aClassMethodCrashingFatally();

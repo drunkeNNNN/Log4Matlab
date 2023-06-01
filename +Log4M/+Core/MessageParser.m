@@ -113,6 +113,8 @@ classdef MessageParser < handle
         function parseInputArgument(obj,arg)
             if ischar(arg)
                 obj.castAtomicArray(arg,@(x)(x),', ');
+            elseif isenum(arg)
+                obj.castAtomicArray(arg,@char,', ');
             elseif isnumeric(arg)
                 obj.castAtomicArray(arg,@(x)(num2str(x,obj.numericFormatSpec)),', ');
             elseif isstring(arg)

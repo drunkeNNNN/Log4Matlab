@@ -225,12 +225,10 @@ classdef Logger < Log4M.LogMessageFilterComponent
                 return;
             end
 
-            messageLogLevelString=Log4M.LogLevel.levelToString(messageLogLevel);
-
             est=Log4M.Core.ExternalStackTrace().init();
-            depth=1;
-            sourceLink=est.getSourceLink(depth,obj.fileLinkFormat);
-            sourceFilename=[est.getFullSourcePath(depth),' (Line ',est.getSourceLine(depth),')'];
+            externalStackDepth=1;
+            sourceLink=est.getSourceLink(externalStackDepth,obj.fileLinkFormat);
+            sourceFilename=[est.getFullSourcePath(externalStackDepth),' (Line ',est.getSourceLine(externalStackDepth),')'];
 
             mp=Log4M.Core.MessageParser();
             mp.setNumericFormat(obj.numericFormatSpec);
@@ -238,12 +236,12 @@ classdef Logger < Log4M.LogMessageFilterComponent
             mp.setDatetimeFormat(obj.datetimeFormatSpec);
             [messageLines,errorLinks]=mp.parseMessage(varargin{:});
             for i=1:size(messageLines,1)
-                filterString=[messageLogLevelString,' ',sourceFilename,' ',messageLines{i,1},' ',errorLinks{i,1}];
+                filterString=[char(messageLogLevel),' ',sourceFilename,' ',messageLines{i,1},' ',errorLinks{i,1}];
                 [isLoggerFilterAccepted,isLoggerFilterDenied]=obj.getFilterResult(filterString);
                 for k=1:size(obj.appenders,1)
                     [isAppenderFilterAccepted,isAppenderFilterDenied]=obj.appenders{k,1}.getFilterResult(filterString);
                     if obj.messageDoesPrint(messageLogLevel,obj.appenders{k,1}.getLogLevel(),isAppenderFilterAccepted,isAppenderFilterDenied,isLoggerFilterAccepted,isLoggerFilterDenied,messageLines{i,1})
-                        obj.appenders{k,1}.appendToLog(messageLogLevelString,sourceFilename,sourceLink,messageLines{i,1},errorLinks{i,1});
+                        obj.appenders{k,1}.appendToLog(messageLogLevel,sourceFilename,sourceLink,messageLines{i,1},errorLinks{i,1});
                     end
                 end
             end

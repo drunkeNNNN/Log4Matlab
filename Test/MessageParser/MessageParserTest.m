@@ -26,12 +26,9 @@ classdef MessageParserTest < matlab.unittest.TestCase
 
     methods(Test)
         function shouldParseRandomObject(obj)
-            lec=Log4M.LogLevel();
+            lec=Log4M.Logger();
             obj.verifyThatOutputFor('Object: ',lec)...
-               .matches('Object:.* with properties:','inLine',1);
-            for i=2:size(obj.outputLines,1)
-                obj.matches('Object: \w+: \d','inLine',i);
-            end
+               .matches('Object:.* with no properties.','inLine',1);
         end
 
         function shouldParseError(obj)
@@ -61,6 +58,13 @@ classdef MessageParserTest < matlab.unittest.TestCase
                 .matches([dateRegex,', CAT_BD, 20'],'inLine',3)...
                 .hasEmptyErrorLink()...
                 .hasLineCount(3);
+        end
+
+        function shouldParseEnum(obj)
+            obj.verifyThatOutputFor('abc: ',Log4M.LogLevel.TRACE)...
+                .matches('abc: TRACE','inLine',1)...
+                .hasEmptyErrorLink()...
+                .hasLineCount(1);
         end
 
         function shouldParseTable(obj)
