@@ -3,34 +3,49 @@ classdef GUI < Log4M.Appenders.Memory
         FIGURE_TITLE='Log4M Viewer';
     end
 
+    properties(Access=private)
+        figureEnabled=true;
+    end
+
     properties(Access=protected)
         doesShow;
     end
 
     methods(Access=public)
+        function enableFigure(obj)
+            obj.figureEnabled=true;
+        end
+
+        function disableFigure(obj)
+            obj.figureEnabled=false;
+        end
+
+        % Hook for subclasses to activate and deactivate the window
+
         function appendToLog(obj,levelStr,sourceFilename,sourceLink,message,errorLineLink)
             obj.appendToLog@Log4M.Appenders.Memory(levelStr,sourceFilename,sourceLink,message,errorLineLink);
 
+            if obj.figureEnabled
+                f = findall(0,'Name',obj.FIGURE_TITLE);
+                if isempty(f)
+                    f=uifigure('Name',obj.FIGURE_TITLE);
+                end
+                uiTab=findall(f,'Type','uitable');
+                if isempty(uiTab)
+                    table=obj.getTable();
+                    table{:,2}=double(table{:,2});
+                    uiTab=uitable(f,'Data',table(:,[1,2,3,5,6,7]),'ColumnSortable',true(1,6),'ColumnWidth','fit','Units','normalized','Position',[0,0.1,1,0.9]);
+                    %                p=uipanel(f,'Units','normalized');
+                    uiTab.addStyle(uistyle('Interpreter','html'));
 
-            f = findall(0,'Name',obj.FIGURE_TITLE);
-            if isempty(f)
-                f=uifigure('Name',obj.FIGURE_TITLE);
+                    uibutton(f,'Text','Update','Visible',true,'Position',[10,10,100,20]);
+                    uilabel(f,'Text','Filter Regex','Position',[120,10,100,20]);
+                    uieditfield(f,'Position',[240,10,100,20]);
+                end
+                set(f,"WindowKeyPressFcn",@obj.update);
+                btn=findall(f,'Type','uibutton');
+                set(btn,'ButtonPushedFcn',@obj.update);
             end
-            uiTab=findall(f,'Type','uitable');
-            if isempty(uiTab)
-                table=obj.getTable();
-                table{:,2}=double(table{:,2});
-                uiTab=uitable(f,'Data',table(:,[1,2,3,5,6,7]),'ColumnSortable',true(1,6),'ColumnWidth','fit','Units','normalized','Position',[0,0.1,1,0.9]);
-                %                p=uipanel(f,'Units','normalized');
-                uiTab.addStyle(uistyle('Interpreter','html'));
-
-                uibutton(f,'Text','Update','Visible',true,'Position',[10,10,100,20]);
-                uilabel(f,'Text','Filter Regex','Position',[120,10,100,20]);
-                uieditfield(f,'Position',[240,10,100,20]);
-            end
-            set(f,"WindowKeyPressFcn",@obj.update);
-            btn=findall(f,'Type','uibutton');
-            set(btn,'ButtonPushedFcn',@obj.update);
         end
 
         function update(obj,app,event)
@@ -63,6 +78,7 @@ classdef GUI < Log4M.Appenders.Memory
                 uiTab.addStyle(uistyle('BackgroundColor', [1,.85,0.85]),"row",find(uiTab.Data{:,3}==Log4M.LogLevel.CRITICAL));
                 uiTab.addStyle(uistyle('BackgroundColor', [1,.8,0.8]),"row",find(uiTab.Data{:,3}==Log4M.LogLevel.FATAL));
             end
+            uiTab.scroll("bottom");
         end
     end
 end
